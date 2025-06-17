@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/assets/style.css">
+        <title>Vitals Simulation Error Guide</title>
+    </head>
+    <body>
+        <h1>Vitals Simulation Error Guide</h1>
+        <hr>
+        <div>
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#unreal-engine-cpp-project-fails-to-build">Unreal Engine C++ Project Fails to Build</a></li>
+                <li><a href="#drone-environment-build-errors">Drone Environment Build Errors</a></li>
+                <li><a href="#blocks-airsim-errors">Blocks/AirSim Project Errors</a></li>
+                <li><a href="#colosseum-build-errors">Colosseum Build Errors</a></li>
+            </ul>
+        </div>
+        <hr>
+        <div id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                These are a list of all of the errors that I (and the rest of the current team) have run
+                into while working with the project. I go into detail what different errors mean, what 
+                is causing them, and how to solve them.
+            </p>
+        </div>
+        <hr>
+        <div id="unreal-engine-cpp-project-fails-to-build">
+            <h2>Unreal Engine C++ Project Fails to Build</h2>
+            <div id="cpp-project-fails-related-errors">
+                <h3>Related Errors</h3>
+                <p>
+                    Below is a list of errors may occur when building and testing a blank C++ Unreal Engine project:
+                </p>
+                <ul>
+                    <li><code>Vulnerable NuGet packages</code> that cannot be fixed</li>
+                    <li><code>'__has_feature' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'</code></li>
+                </ul>
+                <p>
+                    In addition, the following error may occur when using the Colosseum plugin:
+                </p>
+                <ul>
+                    <li><code>Il 'P1', version 'X', does not match 'P2', version 'X</code></li>
+                </ul>
+            </div>
+            <div id="cpp-project-fails-solution">
+                <h3>Solution</h3>
+                <p>
+                    Start by downloading the latest Visual Studio Community version (2022).
+                </p>
+                <p>
+                    In the installer, install the following workloads:
+                    <ul>
+                        <li><b>.NET Desktop Development</b></li>
+                        <li><b>Desktop Development with C++</b></li>
+                        <li><b>Windows Application Development</b></li>
+                        <li><b>Game Development with C++</b></li>
+                    </ul>
+                    In the installer, install the following individual components:
+                    <ul>
+                        <li><b>MSVC v143 - VS 2022 C++ x64/x86 build tools (14.38 - 17.8)</b></li>
+                    </ul>
+                </p>
+                <br>
+                <img src="/assets/images/project-setup/error-guide/vs-installer-workloads.png" alt="VS Installer Workloads">
+                <p>
+                    All of these components are required to build a C++ Unreal Engine project.
+                    Desktop Development with C++ is required to build Colosseum.
+                </p>
+                <p class="note">
+                    Note: I have Unity installed, so I also have the Game Development with Unity workload.
+                </p>
+                <p>
+                    Click Install. This will take some time (roughly 25GB)
+                </p>
+                <p>
+                    Here is the problem: when you installed the <b>Desktop Development with C++</b> workload,
+                    you installed the component <b>MSVC v143 - VS 2022 C++ x64/x86 build tools (latest)</b>.
+                    You cannot get rid of this component, as it is required by many other components. However,
+                    Unreal Engine does not like the latest build tools due to a security risk and requires you 
+                    use a previous version. This previous version is the <b>MSVC v143 - VS 2022 C++ x64/x86 build tools (14.38 - 17.8)</b> component
+                    you installed earlier as an individual component.
+                </p>
+                <p>
+                    The next step is to make Unreal Engine use the previous version of the build tools.
+                    Assuming Unreal Engine is already installed and has been run at least once, in your
+                    Windows search bar, type in <i>%appdata%</i> and go to the folder location. This will
+                    bring you to the <i>AppData\Roaming</i> folder.
+                </p>
+                <br>
+                <img src="/assets/images/project-setup/error-guide/appdata-folder.png" alt="AppData Folder">
+                <p>
+                    Navigate to <i>Unreal Engine/Unreal Build Tool</i> and open <b>BuildConfiguration.xml</b>
+                    with a text editor and change it to include the following:
+                </p>
+                    <!-- Shift margin-left because pre takes into account indent of HTML document. -->
+                    <pre class="code">
+                        <code>
+                            &lt;?xml version="1.0" encoding="utf-8" ?&gt;
+                            &lt;Configuration xmlns="https://www.unrealengine.com/BuildConfiguration"&gt;
+                                &lt;WindowsPlatform&gt;
+                                    &lt;CompilerVersion&gt;14.38.33130&lt;/CompilerVersion&gt;
+                                    &lt;ToolchainVersion&gt;14.38.33130&lt;/ToolchainVersion&gt;
+                                &lt;/WindowsPlatform&gt;
+                            &lt;/Configuration&gt;
+                        </code>
+                    </pre>
+                </p>
+                <p class="note">
+                    The version number you see in the <code>CompilerVersion</code> and <code>ToolchainVersion</code>
+                    tags are the specific version of the build tools you installed. This is the last supported
+                    version that Unreal Engine will accept.
+                </p>
+                <p>
+                    Now you should be able to build a blank C++ Unreal Engine project. If you cannot,
+                    ensure that the steps above are completed correctly.
+                </p>
+                <p>
+                    I did this with a fresh install on a brand new Windows 11 machine. I don't imagine
+                    that the Windows version matters, but I have not tested this on Windows 10.
+                </p>
+            </div>
+            <div id="colosseum-integration-solution">
+                <h3>Building Colosseum to Work with Unreal Engine</h3>
+                <p>
+                    If you followed the steps in the previous section, you will likely run into an error
+                    detailing that the Unreal Engine and Colosseum versions do not match if you try to build
+                    and run a project that uses the Colosseum plugin (like Blocks).
+                </p>
+                <p>
+                    To tell Colosseum to build with the <b>(14.38 - 17.8)</b> toolchain, we need to modify
+                    the <b>build.cmd</b> script. Open up the <b>build.cmd</b> file in a text editor and change
+                    line 125 to the following:
+                </p>
+                <p>
+                    <pre class="code">
+                        <code>
+                            cmake -G"Visual Studio 17 2022" -T v143 ..
+                        </code>
+                    </pre>
+                </p>
+                <p class="note">
+                    The <code>-T v143</code> flag tells CMake to use the <b>MSVC v143 - VS 2022 C++ x64/x86 build tools (14.38 - 17.8)</b>
+                    toolchain instead of the latest version (which is the default toolchain)
+                </p>
+                <p>
+                    Then, run the <b>build.cmd</b> script like normal in the Developer Command
+                    Prompt for VS 2022. Hopefully, you will see the toolchain version number
+                    (<code>14.38.33130</code>) during the build process. Once it's finished building,
+                    open the <b>Blocks.sln</b> file. Go to <b>Build</b> &gt; <b>Build Solution</b>, and
+                    hopefully you will again see the toolchain version number
+                    (<code>14.38.33130</code>) in the output window. Once the build succeeds, you are ready to go!
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="drone-environment-build-errors">
+            <h2>Drone Environment Build Errors</h2>
+            <div id="drone-environment-related-errors">
+                <h3>Related Errors</h3>
+                <p>
+                    Below is a list of errors that may occur when building and testing the Drone Environment project:
+                </p>
+                <ul>
+                    <li>~25 compilation errors that only occur in AirSim plugin</li>
+                    <li><code>DroneEnvironment.dll could not be closed</code></li>
+                    <li>Cannot Interaction with UI in Some Areas of Screen</li>
+                </ul>
+            </div>
+            <div id="plugin-compilation-solution">
+                <h3>~25 AirSim Plugin Compilation Errors Solution</h3>
+                <p>
+                    This error was occurring after cloning the git repository. Previously, 
+                    the repository was tracking the <b>Plugins</b> folder. However, from the error
+                    explained above, you <b>NEED</b> to use the Plugins folder from your build of Colosseum.
+                </p>
+                <p>
+                    The problem was that Visual Studio was using git to track changes in the Plugins folder.
+                    Even after deleting and replacing the Plugins folder, git still considered the Plugins "unchanged"
+                    and would not compile the plugin. You would see in the Build Output
+                    <code>[Adaptive Build] Files excluded from building: ...</code>
+                </p>
+                <p>
+                    The solution was to simply stop tracking the Plugins folder in git. I added
+                    <i>Plugins/AirSim</i> to the .gitignore file. <b>DO NOT TRACK PLUGINS IN GIT REPO!</b>
+                </p>
+            </div>
+            <div id="drone-environment-dll-solution">
+                <h3><code>DroneEnvironment.dll could not be closed</code> Solution</h3>
+                <p>
+                    There are three cases for why this might occur:
+                </p>
+                <p>
+                    The first case is that you are trying to Build Solution from VS while
+                    the Unreal Engine editor is open and Live Coding is enabled. Live Coding 
+                    allows you to perform a quick compile when modifying C++ files. However,
+                    while it is active, you won't be able to do Build Solution from VS without
+                    closing the Unreal Engine editor first.
+                    <p class="note">
+                        Personally, I disabled Live Coding so that in order to compile, I have
+                        to run Build Solution from VS. This way, I can see the compilation
+                        errors in the VS Output window instead of the Unreal Engine editor. To
+                        do this, go to <b>Edit</b> &gt; <b>Editor Preferences</b> &gt; <b>Live Coding</b>
+                        and uncheck <b>Enable Live Coding</b>.
+                    </p>
+                    <br>
+                    <img src="/assets/images/project-setup/error-guide/live-coding-settings.png" alt="Disable Live Coding">
+                </p>
+                <p>
+                    The second case is interference from an antivirus program. An antivirus
+                    program may be trying to scan the DroneEnvironment.dll file while it is being
+                    built, causing the file to be locked. When this occurs, just disable your
+                    antivirus program temporarily and try to build again.
+                </p>
+                <p>
+                    The third case is when you encounter a crash during Play mode. Unreal Engine
+                    will close an a popup will appear showing you the crash log. Keeping this log
+                    open will prevent you from building the solution in VS until it is closed.
+                </p>
+            </div>
+            <div id="ui-interaction-solution">
+                <h3>Cannot Interact with UI in Some Areas of Screen Solution</h3>
+                <p>
+                    This issue is due to AirSim having its own HUD that is blocking our HUD. Here's how
+                    to disable the AirSim HUD from blocking our UI interaction:
+                </p>
+                <p>
+                    In the Content Browser, navigate to <i>Plugins/AirSim/Content/Blueprints</i>
+                    and open <b>BP_SimHUDWidget</b>
+                    <br>
+                    <img src="/assets/images/project-setup/error-guide/simhudwidget-location.png" alt="BP_SimHUDWidget Location">
+                </p>
+                <p class="note">
+                    To see the Plugins folder in the Content Browser, click on the Settings icon and enable
+                    <b>Show Plugin Content</b>.
+                    <br>
+                    <img src="/assets/images/project-setup/error-guide/show-plugin-content-settings.png" alt="Show Plugin Content">
+                </p>
+                <p>
+                    In the Hierarchy tab, select the <b>[CanvasPanel_0]</b> component.
+                    <br>
+                    <img src="/assets/images/project-setup/error-guide/simhudwidget-canvas-panel-location.png" alt="BP_SimHUDWidget Canvas Panel Location">
+                </p>
+                <p>
+                    In the Details tab, set <b>Visibility</b> to <b>Not Hit Testable (Self & All Children)</b>.
+                    <br>
+                    <img src="/assets/images/project-setup/error-guide/simhudwidget-canvas-panel-visibility.png" alt="BP_SimHUDWidget Canvas Panel Visibility">
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="blocks-airsim-errors">
+            <h2>Blocks/AirSim Project Errors</h2>
+            <div id="blocks-airsim-related-errors">
+                <h3>Related Errors</h3>
+                <p>
+                    Below is a list of errors that may occur when building and testing the Blocks project:
+                </p>
+                <ul>
+                    <li><code>Eigen/Dense: No such file or directory</code></li>
+                    <li>Unreal Engine Crashes on Play</li>
+                </ul>
+            </div>
+            <div id="eigen-dense-solution">
+                <h3><code>Eigen/Dense Not Found</code> Solution</h3>
+                <p>
+                    This error occurs when you are using someone else's Plugins folder.
+                    You <b>CANNOT</b> copy-paste someone else's Plugins folder. You must
+                    get your own Plugins folder that you got when you built Colosseum.
+                    Copy the Plugins folder from <code>.../Colosseum/Unreal</code>
+                </p>
+            </div>
+            <div id="unreal-engine-crash-solution">
+                <h3>Unreal Engine Crashes on Play Solution</h3>
+                <p>
+                    This specifically occurs in the Colosseum 5.2 release package.
+                    The crash log will mention that a NULL pointer exception occurred at
+                    <b>SimModeBase.cpp</b> on line 235.
+                </p>
+                <p>
+                    Luckily, this is an easy fix. Navigate to 
+                    <i>.../Colosseum/Unreal/Plugins/AirSim/Source/SimMode/<b>SimModeBase.cpp</b></i>
+                    <br>
+                    <img src="/assets/images/project-setup/error-guide/simmodebase-location.png" alt="SimModeBase.cpp Location">
+                </p>
+                <p>
+                    On line 229, change the <b>#if</b> directive to the following:
+                    <b>#if ((ENGINE_MAJOR_VERSION > 4) || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 27))</b>
+                    <br>
+                    <img src="/assets/images/project-setup/error-guide/simmodebase-fix.png" alt="SimModeBase.cpp Fix">
+                </p>
+                <p>
+                    Once corrected, save the file and copy this Plugins folder into 
+                    <i>.../Colosseum/Unreal/Environment/Blocks</i>. Then, open the <b>Blocks.sln</b> file in VS and
+                    do <b>Build &gt; Build Solution</b>. You should be able to play the Blocks project.
+                    <br>
+                    <img src="/assets/images/project-setup/error-guide/move-plugins-folder-pt1.png" alt="Move Plugins Folder Part 1">
+                    <img src="/assets/images/project-setup/error-guide/move-plugins-folder-pt2.png" alt="Move Plugins Folder Part 2">
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="colosseum-build-errors">
+            <h2>Colosseum Build Errors</h2>
+            <div id="colosseum-related-errors">
+                <h3>Related Errors</h3>
+                <p>
+                    Below is a list of errors that may occur when building Colosseum:
+                </p>
+                <ul>
+                    <li><code>HKEY_CLASSES_ROOT does not exist</code></li>
+                    <li><code>C Compiler Unknown</code></li>
+                </ul>
+            </div>
+            <div id="hkey-classes-root-solution">
+                <h3><code>HKEY_CLASSES_ROOT does not exist</code> Solution</h3>
+                <p>
+                    This error will pop up towards the end of the building Colosseum, when
+                    <b>build.cmd</b> tries to Generate Visual Studio project files.
+                </p>
+                <p>
+                    This means that Unreal Engine is not associated with the Windows Registry yet.
+                    This may occur if you have never opened Unreal Engine before.
+                </p>
+                <p>
+                    To fix this, verify your Unreal Engine installation. In the Epic Games Launcher,
+                    go to the <b>Library</b> tab, find the version of Unreal Engine you are using,
+                    click on the three dots next to it, and select <b>Verify</b>.
+                    Once the verification is complete, try launching Unreal Engine to let initialization
+                    scripts run.
+                </p>
+                <p>
+                    Then, you should be able to run the <b>build.cmd</b> script again for Colosseum.
+                </p>
+            </div>
+            <div id="c-compiler-unknown-solution">
+                <h3><code>C Compiler Unknown</code> Solution</h3>
+                <p>
+                    After running the <b>build.cmd</b> script, you may see an error during the
+                    <i>Build rpclib</i> stage that says the C compiler Identification is unknown and
+                    that it cannot run a simple test program. Finally, it will say that there was some
+                    link error where the script could not close a file.
+                </p>
+                <p>
+                    This error may also occur during Build Solution in VS. An error will generate
+                    that says some .dll files cannot be closed.
+                </p>
+                <p>
+                    To solve this, first ensure that you have the correct Visual Studio 2022 workloads
+                    installed, as described in the 
+                    <a href="#unreal-engine-cpp-project-fails-to-build">Unreal Engine C++ Project Fails to Build</a> section.
+                </p>
+                <p>
+                    If the error still occurs, then it is likely your antivirus program. Try disabling your antivirus
+                    program temporarily and then run the <b>build.cmd</b> script again.
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="references">
+            <h2>References</h2>
+            <ul>
+                <li><a href="https://forums.unrealengine.com/t/unable-to-generate-c-project-after-upgrading-to-visual-studio-17-12-blocking/2122722. ">Unable to Generate C Project After Upgrading VS</a></li>
+                <li><a href="https://forums.unrealengine.com/t/cant-compile-5-4-projects-anymore-i-need-help/2138002">Can't Compile UE 5.4 Projects</a></li>
+                <li><a href="https://github.com/microsoft/AirSim/issues/613">Eigen/Dense Not Found Issue</a></li>
+                <li><a href="https://github.com/CodexLabsLLC/Colosseum/issues/59">UE Crash on Play Issue</a></li>
+
+        </div>
+    </body>
+</html>
