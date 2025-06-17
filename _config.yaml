@@ -4,13 +4,4 @@ color_scheme: light
 search_enabled: true
 
 just_the_docs:
-  collections:
-    drone-controller:
-      name: Drone Controller
-      permalink: /drone-controller/
-    drone-environment:
-      name: Drone Environment
-      permalink: /drone-environment/
-    project-setup:
-      name: Project Setup
-      permalink: /project-setup/
+  navigation: hierarchical

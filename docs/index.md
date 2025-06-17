@@ -1,6 +1,7 @@
 ---
-title: Overview
-nav_order: 1
+title: Home
+nav_order: 0
+permalink: /
 ---
 
 # Vitals Simulation
