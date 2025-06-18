@@ -3,5 +3,122 @@ layout: default
 title: Drone Controller Details
 parent: Drone Controller
 nav_order: 1
-permalink: /drone-controller/drone-controller/
+permalink: /drone-controller/drone-controller-details/
 ---
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ site.baseurl }}/assets/style.css">
+        <title>Drone Controller Details</title>
+    </head>
+    <body>
+        <h1>Drone Controller Details</h1>
+        <hr>
+        <div id="table-of-contents">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#core-files">Core Files</a></li>
+                <li><a href="#misc-files">Miscellaneous Files</a></li>
+                <li><a href="#resources">Resrouces</a></li>
+            </ul>
+        </div>
+        <hr>
+        <div id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                The Drone Controller contains our Python Client. The Drone Controller defines
+                drone behavior and handles communication with the AI model and Unreal Engine client.
+            </p>
+        </div>
+        <div id="core-files">
+            <h2>Core Folders/Files</h2>
+            <p>
+                Below are the core folders/files for running the Search and Rescue operation:
+            </p>
+            <ul>
+                <li>
+                    <code>updated_mission_control.py</code>: This is the main process that sets up image directories
+                    and starts the processes for <i>parent_controller.py</i> and <i>websocket_server.py</i>.
+                </li>
+                <br>
+                <li>
+                    <code>parent_controller.py</code>: This performs setup and loops continuously, sending
+                    and receiving data from each drone. This is also where the VLM runs to process images.
+                </li>
+                <br>
+                <li>
+                    <code>single_drone_controller.py</code>: Handles the behavior for each individual drone. This 
+                    includes avoiding obstacles, flying to targets, and taking infrared/scene images for processing.
+                </li>
+                <br>
+                <li>
+                    <code>websocket/websocket_server.py</code>: This is the WebSocket server that communicates with the Unreal Engine client.
+                </li>
+                <br>
+                <li>
+                    <code>local_config.py</code>: Not included in the repository, this file contains 2 variables:
+                    <ul>
+                        <li><code>LOCAL_IP = "Your Windows IP Address"</code>, which can be found by running <code>ipconfig</code> in Windows Command Prompt</li>
+                        <li><code>EXECUTABLE_PATH = "Absolute/Path/To/DroneEnvironment.exe"</code>, which is used if you set <code>RELEASE_BUILD</code> to <code>True</code> in <code>parent_controller.py</code></li>
+                    </ul>
+                </li>
+                <br>
+                <li>
+                    <code>settings.json</code>: Contains the AirSim settings configuration. Put this file in <i>.../Documents/AirSim</i>
+                    which is your main drive's Documents folder. This could also be found in <i>.../OneDrive/Documentss/AirSim</i>
+                    if you are tracking your Documents folder with OneDrive.
+                </li>
+                <br>
+                <li>
+                    <code>helper_functions.py</code>: Includes various utility functions required by the drone controllers.
+                </li>
+                <br>
+                <li>
+                    <code>classes.py</code>: Defines the structure of classes used in the drone controller, including
+                    <b>Waypoint</b>, <b>Image</b>, and <b>VLMOutput</b>
+                </li>
+                <br>
+                <li>
+                    <code>model_files/pull_model.py</code>: Pulls a given model from Ollama.
+                </li>
+                <br>
+                <li>
+                    <code>images/</code>: Contains the latest images taken by the drones. This folder is used
+                    to store images that are sent to the AI model for processing.
+                </li>
+            </ul>
+        </div>
+        <hr>
+        <div id="misc-files">
+            <h2>Miscellaneous Files</h2>
+            <p>
+                The following folders/files are not essential for running the Mission Control, but they provide
+                various tests and examples used during development:
+            </p>
+            <ul>
+                <li><code>archive/</code>: Contains out-dated scripts, settings, and other files that are no longer used.</li>
+                <br>
+                <li><code>websocket/testing</code>: Test scripts related to working with the websocket server</li>
+            </ul>
+        </div>
+        <hr>
+        <div id="resources">
+            <h2>Resources</h2>
+            <p>
+                For more information on the Drone Controller, refer to the following resources:
+            </p>
+            <ul>
+                <li><a href="https://codexlabsllc.github.io/Colosseum/settings/" target="_blank">Colosseum Settings.json</a></li>
+                <li><a href="https://github.com/ollama/ollama-python/tree/main/examples" target="_blank">Ollama Examples</a></li>
+                <li><a href="https://ollama.com/blog/structured-outputs/" target="_blank">Ollama Structured Outputs</a></li>
+                <li><a href="https://ollama.com/blog/functions-as-tools" target="_blank">Ollama Function Calling</a></li>
+                <li><a href="https://github.com/ollama/ollama/blob/main/docs/api.md">Ollama API</a></li>
+                <li><a href="https://codexlabsllc.github.io/Colosseum/">Colosseum Documentation</a></li>
+            </ul>
+        </div>
+    </body>
+</html>
