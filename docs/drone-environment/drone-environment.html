@@ -5,3 +5,646 @@ parent: Drone Environment
 nav_order: 1
 permalink: /drone-environment/drone-environment/
 ---
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ site.baseurl }}/assets/style.css">
+        <title>Drone Environment Details</title>
+    </head>
+    <body>
+        <h1>Drone Environment Details</h1>
+        <hr>
+        <div id="table-of-contents">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#workflow">Unreal Engine Programming Workflow</a></li>
+                <li><a href="#file-structure">File Structure</a></li>
+                <li><a href="#brian">Brian</a></li>
+                <li><a href="#map">Map</a></li>
+                <li><a href="#hud-controller">HUD Controller</a></li>
+                <li><a href="#hud">HUD</a></li>
+                <li><a href="#minimap">Minimap</a></li>
+                <li><a href="#largemap">Large Map</a></li>
+                <li><a href="#user-overrides">User Overrides</a></li>
+                <li><a href="#data-tables">Data Tables</a></li>
+                <li><a href="#poi">Points of Interest</a></li>
+                <li><a href="#references">References</a></li>
+            </ul>
+        </div>
+        <hr>
+        <div id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                This document includes notes about everything related to the Drone Environment Unreal Engine project.
+            </p>
+            <p class="note">
+                Currently, the Drone Environment repository is hosted on 
+                <a href="https://dev.azure.com/Zach-Sally/VITALS-Drone-Environment/_git/Drone-Environment">Azure DevOps</a>
+                due to Git LFS storage limitations with GitHub.
+            </p>
+        </div>
+        <hr>
+        <div id="workflow">
+            <h2>Unreal Engine Programming Workflow</h2>
+            <p>
+                Below is a quick guide to programming with Unreal Engine if you have never used it before.
+            </p>
+            <div id="workflow-terms">
+                <h3>Terminology</h3>
+                <ul>
+                    <li><b>Actor:</b> An object that can be placed in the level (equivalent to GameObject in Unity)</li>
+                    <li><b>Actor Component:</b> Component that adds additional functionality to an Actor</li>
+                    <li><b>Blueprint:</b> A visual scripting language used to create game logic</li>
+                    <li><b>GameInstance:</b> A high-level manager class for an instance of a running game</li>
+                    <li><b>Widgets:</b> The term for UI components</li>
+                </ul>
+            </div>
+            <div id="workflow-compilation">
+                <h3>C++ Compilation</h3>
+                <p>
+                    To compile C++ code in Unreal Engine, you can either using Live Coding or Build the Visual Studio Solution.
+                </p>
+                <p>
+                    <b>Live Coding:</b> This allows you to compile code while the game is running. This should be on by default, but
+                    can be toggled in the Unreal Engine Editor by going to
+                    <code>Edit &gt; Editor Preferences &gt; Live Coding</code>. Live Coding is the preferred method for quick changes.
+                </p>
+                <p>
+                    <b>Build Visual Studio Solution:</b> This is the traditional method of compiling C++ code. You can do this by
+                    right-clicking the project in the Solution Explorer and selecting "Build". This will stop the game, compile the code,
+                    and then restart the game.
+                </p>
+                <p class="note">
+                    I personally disabled Live Coding and solely use the visual Studio Build Solution method, as it lets me
+                    view errors in the Output Window. Disabling Live Coding lets you build through VS without needing
+                    to close the Unreal Engine Editor.
+                </p>
+            </div>
+            <div id="workflow-blueprints-cpp">
+                <h3>Blueprints and C++</h3>
+                <p>
+                    In general, you will create a C++ class with exposed functions and properties that can be used in Blueprints.
+                    The C++ files are broken down into two files:
+                    <ul>
+                        <li><code>MyClass.h</code> file: This is the header file that contains the class definition and declarations of functions and properties.</li>
+                        <li><code>MyClass.cpp</code> file: This is the implementation file that contains the actual code for the functions declared in the header file.</li>
+                </p>
+                <p>
+                    To expose a C++ class to Blueprints, you need to use the <code>UCLASS()</code> macro and specify the
+                    <code>Blueprintable</code> specifier. You can then create a Blueprint based on that class and use it in the level.
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="file-structure">
+            <h2>File Structure</h2>
+            <p>
+                The Drone Environment repository is structured as follows:
+            </p>
+            <ul>
+                <li><code>Config/</code>: Where the project settings are stored.</li>
+                <li>
+                    <code>Content/</code>: Contains all the assets, including Blueprints, textures, and models.
+                    <ul>
+                        <li><code>Brian/</code>: Contains assets related to Brian (Animation, Skeleton, Blueprints, etc)</li>
+                        <li><code>Environment</code>: Everything related to the Landscape (Textures, Animals, etc)</li>
+                        <li><code>Maps</code>: Contains the Landscape Map (level) and its Build Data</li>
+                        <li><code>POI</code>: Contains the Actor Component for Points of Interest that should show on map, as well as the Blueprint for a Waypoint actor</li>
+                        <li><code>UI</code>: Contains the UI Widgets, including the HUD, Minimap, and Large Map</li>
+                    </ul>
+                </li>
+                <li>
+                    <code>Source/</code>: Contains the C++ source code for the project.
+                    <ul>
+                        <li><code>DroneEnvironment.Build.cs</code>: Defines dependency modules</li>
+                        <li><code>DroneEnvironment.cpp</code>: Core game module</li>
+                        <li><code>VitalsSimulationGameInstance.cpp</code>: Manages the instance of the project</li>
+                        <li><code>WebSocketManager.cpp</code>: Handles WebSocket communication between the UI and the WebSocket server</li>
+                    </ul>
+                </li>
+                <li><code>Plugins</code>AirSim is <b>NOT</b> tracked by git. You must copy your own Plugins folder that was generated when you built Colosseum</li>
+            </ul>
+        </div>
+        <hr>
+        <div id="brian">
+            <h2>Brian</h2>
+            <p>
+                Brian is the missing person that the drones are searching for in the Drone Environment. Brian spawns based on 
+                the difficulty level selected when the simulation starts. This is done within the <code>TargetSpawner</code> blueprint.
+            </p>
+            <p>
+                Each Brian has a tag to identify which difficulty level he is associated with: "Dev", "Easy", "Medium", or "Hard".
+                When the user selects a difficulty, the following occurs:
+            </p>
+            <ol>
+                <li>Delete all Brians without the associated "Difficulty" tag</li>
+                <li>Choose 1 Brian out of the list of Brians with the associated "Difficulty" tag and destroy the rest</li>
+            </ol>
+        </div>
+        <hr>
+        <div id="map">
+            <h2>Map</h2>
+            <p>
+                The map is located in <i>Content/Maps/LandscapeMap</i>
+            </p>
+            <div id="map-dimensions-coordinates">
+                <h3>Map Dimensions and Coordinates</h3>
+                <p>
+                    Dimensions in Unreal Engine are in centimeters.
+                </p>
+                <p>
+                    The coordinate system in Unreal Engine is different based on whether you are in Editor or Play mode.
+                    In Editor Mode, there is an absolute world origin point at (0, 0, 0).
+                    In Play Mode, the world origin point is where the <b>PlayerStart</b> actor is placed.
+                </p>
+                <p>
+                    Coordinate values with respect to Editor Mode:
+                    <ul>
+                        <li><b>PlayerStart:</b> (15,408, -103,271)</li>
+                        <li><b>Bottom Left:</b> (-32,000, 0)</li>
+                        <li><b>Top Right:</b>(195,000, -195,000)</li>
+                    </ul>
+                </p>
+                <p>
+                    Coordinate values with respect to Play Mode:
+                    <ul>
+                        <li><b>PlayerStart:</b> (0, 0)</li>
+                        <li><b>Bottom Left:</b>(-47,000, 102,000)</li>
+                        <li><b>Top Right:</b>(180,000, -92,000)</li>
+                    </ul>
+                </p>
+                <p>
+                    The map is 227,000 cm wide and 195,000 cm tall, which is approximately 2.27 km by 1.94 km.
+                    This ratio is used to convert world coordinates to the respective minimap and large map coordinates
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="hud-controller">
+            <h2>HUD Controller</h2>
+            <p>
+                The UI all starts with the <b>BP_HUDController</b> actor in the level.
+                It is located in <i>Content/UI/BP_HUDController</i>.
+            </p>
+            <p>
+                The HUD Controller is responsible for:
+                <ul>
+                    <li>Creating the <b>WBP_HUD</b> widget and adding it to the viewport</li>
+                    <li>Storing drone actor references for the UI to access</li>
+                    <li>Sets up the drone actor icons on the minimap and large map</li>
+                    <li>Handles zoominig of the minimap with the mouse scroll wheel (but should be moved to <b>WBP_Minimap)</b></li>
+                </ul>
+            </p>
+        </div>
+        <hr>
+        <div id="hud">
+            <h2>HUD</h2>
+            <p>
+                The HUD houses all parts of the UI. It is located in <i>Content/UI/WBP_HUD</i>.
+            </p>
+            <p>
+                The HUD can be broken down into the following panels, which are switched between based on user actions:
+                <ul>
+                    <li><b>StartMenuPanel:</b> The main menu that provides a <i>Start</i>, <i>About</i>, and <i>Quit</i> button. This is the default panel on the start of the program</li>
+                    <li><b>OptionsPanel:</b> A menu that contains a <i>Controls</i> and <i>Quit</i> button. This panel is switched to when the user presses 'Escape' while in the <b>ScenePanel</b> or <b>OverridePanel</b></li>
+                    <li><b>CreditsPanel:</b> A panel containing credits for the project. This panel is switched to when the user clicks the <i>About</i> button in the <b>StartMenuPanel</b></li>
+                    <li><b>DifficultyPanel:</b> A panel containing <i>Dev</i>, <i>Easy</i>, <i>Medium</i>, and <i>Hard</i> buttons. This panel is switched to when the user presses the <i>Start</i> button in <b>StartMenuPanel</b></li>
+                    <li><b>ScenePanel:</b> A panel containing a timer and the minimap. This shows the scene as it follows Drone 0. This panel is switched to when the user selects a difficulty in the <b>DifficultyPanel</b> or is toggled to when in the <b>OverridePanel</b></li>
+                    <li><b>OverridePanel:</b> A panel containing a large map, the user override options, and the drone and waypoint data tables. This panel is switched to when it is toggled to when in the <b>ScenePanel</b></li>
+                    <li><b>ControlsPanel:</b> A panel containing the various controls and descriptions related to the UI and AirSim. This panel is switched to when the user selects the <i>Controls</i> button on the <b>OptionsPanel</b></li>
+                </ul>
+            </p>
+        </div>
+        <hr>
+        <div id="minimap">
+            <h2>Minimap</h2>
+            <p>
+                The minimap is located in <i>Content/UI/WBP_Minimap</i>.
+            </p>
+            <p>
+                The minimap is a 2D representation of the drone environment, showing the drones and their waypoints in a small, concise view
+                at the bottom-left of the Scene View. It is updated every tick to reflect the current state of the drones and waypoints.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/drone-environment/minimap.png" alt="Minimap">
+            <p>
+                <b>Key Features:</b>
+                <ul>
+                    <li>Shows the drones and their waypoints</li>
+                    <li>Allows zooming in and out with the mouse scroll wheel</li>
+                    <li>Updates every tick to reflect the current state of the drones and waypoints</li>
+                    <li>Centered on the average of the drone locations</li>
+                    <li>Icons (drones and waypoints) are clamped to the edge of the circular border if out of view</li>
+                </ul>
+            </p>
+            <div id="minimap-material">
+                <h3>Minimap Material</h3>
+                <p>
+                    The minimap is a texture-based representation of the landscape. The texture is based on an orthographic screenshot
+                    of the landscape, which is then used to create a material that is applied to the minimap.
+                    The texture is located in <i>Content/UI/MapUI/T_LandscapeMap</i>.
+                </p>
+                <p class="note">
+                    The alternative method is to use a 2D Scene Capture with a Render Target. However, this method involved
+                    rendering the scene with another camera, which is not ideal for performance.
+                </p>
+                <p>
+                    The core functionality of the minimap starts with <i>M_Minimap</i>. This is a material of <i>T_LandscapeMap</i> that
+                    uses parameters to center and scale the minimap accordingly. It converts world coordinates to UV texture coordinates
+                    based on the following formula:
+                </p>
+                <p class="code">
+                    <code>UV = &lt;UV<sub>x</sub> + TextureCoordinate x Zoom, UV<sub>y</sub> + TextureCoordinate x Zoom</code>
+                </p>
+                <p>
+                    ...where <code>UV</code> is a two-channel vector whose values are clamped between 0 and 1 and...
+                </p>
+                <p class="code">
+                    <code>UV<sub>x</sub> = (X - (WorldWidth / 2) - Origin<sub>x</sub>) / WorldWidth + TextureOffset<sub>x</sub> + ZoomOffset</code>
+                    <br>
+                    <code>UV<sub>y</sub> = (Y - (WorldHeight / 2) - Origin<sub>y</sub>) / WorldHeight + TextureOffset<sub>y</sub> + ZoomOffset</code>
+                    <br>
+                    <code>Zoom Offset = (Zoom / 2) - 0.5</code>
+                </p>
+                <p>
+                    The parameters above are defined in <i>MPC_MinimapData</i> and are described as follows:
+                    <ul>
+                        <li><code>X</code>: The X coordinate of <b>BP_HUDController</b>, which is centered on the average of the drone locations</li>
+                        <li><code>Y</code>: The Y coordinate of <b>BP_HUDController</b>, which is centered on the average of the drone locations</li>
+                        <li><code>Zoom</code>: The Zoom value defined in <b>BP_HUDController</b> when the user uses the mouse scroll wheel</li>
+                        <li><code>WorldWidth</code>: The width of the world in centimeters (227,000 cm)</li>
+                        <li><code>WorldHeight</code>: The height of the world in centimeters (195,000 cm)</li>
+                        <li><code>Origin<sub>x</sub></code>: The X coordinate of the world origin in Editor Mode (-32,000 cm)</li>
+                        <li><code>Origin<sub>y</sub></code>: The Y coordinate of the world origin in Editor Mode (0 cm)</li>
+                        <li><code>TextureOffset<sub>x</sub></code>: A hardcoded offset to line up the texture with PlayerStart (0.075)</li>
+                        <li><code>TextureOffset<sub>y</sub></code>: A hardcoded offset to line up the texture with PlayerStart (0.475)</li>
+                    </ul>
+                </p>
+                <p class="note">
+                    The actual <b>WBP_Minimap</b> widget uses <i>MI_Minimap</i>, an instance of the <i>M_Minimap</i> material.
+                    This is for futureproofing if new maps are introduced, a developer can easily swap between material instances.
+                </p>
+            </div>
+            <div id="minimap-icons">
+                <h3>Minimap Icons</h3>
+                <p>
+                    The icon widgets for the minimap are located in <i>Content/UI/MapUI/WBP_POI_Minimap</i>.
+                </p>
+                <p>
+                    Points of Interest on the minimap include drone icons (blue circles) and waypoint icons (red diamonds).
+                    Positions are calculated based on the following formula:
+                </p>
+                <p class="code">
+                    <code>Coordinate<sub>x</sub> = (HUDController<sub>x</sub> - POI<sub>x</sub>) / WorldtoMapRatio<sub>x</sub></code>
+                    <br>
+                    <code>Coordinate<sub>y</sub> = (HUDController<sub>y</sub> - POI<sub>y</sub>) / WorldtoMapRatio<sub>y</sub></code>
+                    <br>
+                    <br>
+                    <code>WorldtoMapRatio<sub>x</sub> = WorldWidth / MapSizeX x Zoom</code>
+                    <br>
+                    <code>WorldtoMapRatio<sub>y</sub> = WorldHeight / MapSizeY x Zoom</code>
+                </p>
+                <p>
+                    Once a coordinate is calculated, we determine the angle in degrees by using:
+                </p>
+                <p class="code">
+                    <code>Degrees = arctan(-Coordinate<sub>x</sub>, -Coordinate<sub>y</sub>)</code>
+                </p>
+                <p>
+                    Finally, we determine the Render Translation of the coordinate on the circular minimap with the following formula:
+                </p>
+                <p class="code">
+                    <code>RenderTranslation<sub>x</sub> = cos(Degrees) x CoordinateMagnitude</code>
+                    <br>
+                    <code>RenderTranslation<sub>y</sub> = sin(Degrees) x CoordinateMagnitude</code>
+                </p>
+                <p>
+                    ...where <code>CoordinateMagnitude</code> is the distance between the POI in minimap coordinates and the center of the minimap,
+                    clamped between [0, 140] inclusive.
+                </p>
+                <p class="note">
+                    There is an option where the minimap can hide an icon if it is not within the minimap view.
+                    If the boolean <i>Is Static</i> is true, the icon will be clamped to the border of the minimap.
+                    If <i>Is Static</i> is false, the icon will not hsow on the minimap if it is out of range.
+                    Both drone and waypoint icons are set to <i>Is Static</i> true by default.
+                </p>
+            </div>
+            <div id="minimap-widget">
+                <h3>Minimap Widget</h3>
+                <p>
+                    <b>WBP_MinimapWidget</b> puts all the components related to the minimap listed above together.
+                    It is located in <i>Content/UI/MapUI/WBP_MinimapWidget</i>.
+                </p>
+                <p>
+                    In the widget's Event Graph, the minimap handles the following:
+                    <ul>
+                        <li>Updating Material Parameters (X, Y, Zoom, WorldWidth, WorldHeight)</li>
+                        <li>Adds the <i>MI_Minimap</i> material instance</li>
+                        <li>Adds a central + icon to show the center of the minimap, defined by <b>WBP_CentralIcon</b></li>
+                        <li>Implements <i>AddPOI</i> function that <b>BP_WaypointManager</b> calls when a new waypoint is created and <b>BP_HUDController</b> calls when it is initializing drone icons</li>
+                    </ul>
+                </p>
+                <p>
+                    The minimap widget is contained inside of an Overlay widget that can be placed and sized within the <b>ScenePanel</b> in <b>BP_HUD</b>
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="largemap">
+            <h2>Large Map</h2>
+            <p>
+                Assets involving the large map are located in <i>Content/UI/MapUI/LargeMap</i>.
+            </p>
+            <p>
+                The large map is a 2D representation of the drone environment that shows the user the absolute positions 
+                of drones and waypoints, view drone behavior, and override drone behavior.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/drone-environment/large-map.png" alt="Large Map">
+            <p>
+                Similar to the minimap, the large map is a texture-based representation of the landscape found in <i>Content/UI/MapUI/T_LandscapeMap</i>.
+            </p>
+            <p>
+                <b>Key Features:</b>
+                <ul>
+                    <li>Shows the absolute positions of drones and waypoints</li>
+                    <li>Interactable via Add and Delete Override Modes</li>
+                    <li>Updates every tick to reflect the current state of the drones and waypoints</li>
+                    <li>Drone trails showing the path that a drone has taken</li>
+                </ul>
+            </p>
+            <div id="largemap-icons">
+                <h3>Large Map Icons</h3>
+                <p>
+                    The large map icons are located in <i>Content/UI/MapUI/LargeMap/WBP_POI_LargeMap</i>.
+                </p>
+                <p>
+                    Points of Interest on the minimap include drone icons (blue circles) and waypoint icons (red diamonds).
+                    Positions are calculated based on the following formula:
+                </p>
+                <p class="code">
+                    <code>Coordinate<sub>x</sub> = (POI<sub>x</sub> / WorldtoMapRatio<sub>x</sub>) - Offset<sub>x</sub></code>
+                    <br>
+                    <code>Coordinate<sub>y</sub> = (POI<sub>y</sub> / WorldtoMapRatio<sub>y</sub>) - Offset<sub>y</sub></code>
+                    <br>
+                    <br>
+                    <code>WorldtoMapRatio<sub>x</sub> = WorldWidth / LargeMapSizeX</code>
+                    <br>
+                    <code>WorldtoMapRatio<sub>y</sub> = WorldHeight / LargeMapSizeY</code>
+                </p>
+                <p>
+                    ... where the given variables are defined as:
+                    <ul>
+                        <li><code>POI<sub>x</sub>: The X world coordinate of the POI</code></li>
+                        <li><code>POI<sub>y</sub>: The Y world coordinate of the POI</code></li>
+                        <li><code>WorldWidth: The width of the world in centimeters (227,000 cm)</code></li>
+                        <li><code>WorldHeight: The height of the world in centimeters (195,000 cm)</code></li>
+                        <li><code>LargeMapSizeX: The width of the large map in pixels (768 px)</code></li>
+                        <li><code>LargeMapSizeY: The height of the large map in pixels (666 px)</code></li>
+                        <li><code>Offset<sub>x</sub>: A hardcoded value that lines up with the map (220 px)</code></li>
+                        <li><code>Offset<sub>y</sub>: A hardcoded value that lines up with the map (15 px)</code></li>
+                    </ul>
+                </p>
+            </div>
+            <div id="largemap-drone-trails">
+                <h3>Drone Trails</h3>
+                <p>
+                    The drone trails are a visual representation of the path that a drone has taken.
+                </p>
+                <p>
+                    Each instance of <b>WBP_POI_LargeMap</b> contains an array of texture coordinates that it has been to.
+                    Every 0.1 seconds, we call <i>UpdateTrailPoints</i>, which will append the current position for up to 500 positions.
+                    If the array exceeds 500 positions, we remove the position at the first index of the array.
+                </p>
+                <p>
+                    In order to line up the trail points to match the icon position, we need to offset the current render translation position
+                    by subtracting <code>LargeMapSize / 2</code>.
+                </p>
+                <p>
+                    The trails are rendered within the <b>WBP_LargeMap</b> widget by overriding its <i>OnPaint</i> function. 
+                    This function is called automatically every frame for all UI widgets. For each POI, we draw red lines based
+                    on the positions stored in the <i>TrailPoints</i> array inside of <b>WBP_POI_LargeMap</b>.
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="user-overrides">
+            <h2>User Overrides</h2>
+            <p>
+                One of the core features of the project is the ability for the user to override drone behavior within the simulation.
+                To do this, we implemented the ability to Add and Delete waypoints within the simulation. This can be done within
+                the "Drone Control View", AKA the <b>OverridePanel</b> found in the <b>WBP_HUD</b> widget.
+            </p>
+            <p>
+                In the <b>OverridePanel</b>, there is a "Select Mode" section to the right of the large map. This section contains
+                an <i>Add Waypoint</i> and a <i>Delete Waypoint</i> button. Override modes are defined under 
+                <i>Content/UI/ENUM_OverrideMode</i>, and are tracked within the <b>WBP_HUD</b> widget.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/drone-environment/override-panel.png" alt="Override Panel">
+            <p>
+                The user overrides are implemented in the <b>WBP_LargeMap</b> widget, which handles the input events and updates
+                the drone behavior accordingly.
+            </p>
+            <div id="user-overrides-default">
+                <h3>Default Mode ('Cancel')</h3>
+                <p>
+                    When no override mode is selected, nothing will happen when the user clicks on the map or its icons.
+                    The mouse cursor will be the default pointer.
+                </p>
+            </div>
+            <div id="user-overrides-add">
+                <h3>Add Waypoint Mode</h3>
+                <p>
+                    If the user presses the <i>Add Waypoint</i> button, the override mode will be set to <i>Add</i>.
+                    The mouse cursor will change to a plus icon, indicating that the user can add a waypoint by clicking 
+                    anywhere on the large map.
+                </p>
+                <p>
+                    Adding a waypoint is performed when the <i>OnMouseButtonDown</i> event is triggered in the <b>WBP_LargeMap</b> widget,
+                    which performs the following steps:
+                    <ol>
+                        <li>Convert absolute mouse position to local mouse position relative to the large map widget</li>
+                        <li>Convert the local map position to world coordinates</li>
+                        <li>Fire <b>BP_WaypointManager</b>'s <i>AddWaypointEvent</i> to handle adding a waypoint</li>
+                    </ol>
+                </p>
+                <p>
+                    The conversion from map to world coordinates is done by using the following formula:
+                </p>
+                <p class="code">
+                    <code>World<sub>x</sub> = (MapPosition<sub>x</sub> - CursorOffset<sub>x</sub>) x MapToWorldRatio<sub>x</sub> - PlayerStart<sub>x</sub> - WorldOrigin<sub>x</sub></code>
+                    <br>
+                    <code>World<sub>x</sub> = (MapPosition<sub>y</sub> - CursorOffset<sub>y</sub>) x MapToWorldRatio<sub>y</sub> - PlayerStart<sub>y</sub> - WorldOrigin<sub>y</sub></code>
+                    <br>
+                    <br>
+                    <code>MapToWorldRatio<sub>x</sub> = WorldWidth / LargeMapSizeX</code>
+                    <br>
+                    <code>MapToWorldRatio<sub>y</sub> = WorldHeight / LargeMapSizeY</code>
+                </p>
+                <p>
+                    World<sub>z</sub> is calculated by creating a line trace from the 2D map position <code>(World<sub>x</sub>, World<sub>y</sub>)</code>.
+                    The line trace starts far below the landscape and stops until we hit the landscape. This ensures that the waypoint
+                    is snapped to the landscape.
+                </p>
+
+                <div id="Waypoint Priorities">
+                    <h4>Waypoint Priorities</h4>
+                    <p>
+                        There are three possible priorities associated with a waypoint:
+                        <ol>
+                            <li><b>OVERRIDE:</b> Waypoints that are added by the user from the UI have the highest priority</li>
+                            <li><b>REQUEUED:</b> Waypoints that were targeted by a drone, but the drone went to another waypoint with OVERRIDE priority before completing its waypoint search</li>
+                            <li><b>DEFAULT:</b> Initial waypoints have the lowest priority</li>
+                        </ol>
+                    </p>
+                    <p class="note">
+                        The Python client does not generate any new waypoints. The simulation only takes in the initial waypoints
+                        defined in the LandscapeMap level.
+                    </p>
+                    <p class="note">
+                        Waypoints are assigned as targets to the drones via a Priority Queue in the Drone Controller Python client.
+                        The Priority Queue is based on a minheap. This is why OVERRIDE = 1, REQUEUED = 2, and DEFAULT = 3.
+                    </p>
+                    <p>
+                        OVERRIDE and DEFAULT priorities are assigned on the UI side, while REQUEUED priorities are assigned on the Python client side.
+                        Below is a pipeline for what occurs when a waypoint is added:
+                        <ul>
+                            <li>
+                                <b>OVERRIDE:</b> <b>WBP_LargeMap</b> <i>OnMouseButtonDown()</i> &rarr; <b>BP_WaypointManager</b> <i>AddWaypointEvent</i>
+                                &rarr; <b>BP_VitalsSimulationGameInstance</b> <i>SendAddWaypointMessage()</i>
+                            </li>
+                            <li>
+                                <b>DEFAULT:</b> <b>WBP_HUD</b> <i>SelectDifficulty()</i> &rarr; <b>BP_WaypointManager</b> <i>SpawnWaypoints()</i>
+                                &rarr; <b>BP_VitalsSimulationGameInstance</b> <i>SendAddWaypointMessage()</i>
+                        </ul>
+                    </p>
+                    <p class="note">
+                        If a waypoint is <u>created</u>, the priority is set in the UI client. If a waypoint is <u>not created</u>,
+                        the priority is set in the Python client.
+                    </p>
+                </div>
+            </div>
+            <div id="user-overrides-delete">
+                <h3>Delete Waypoint Mode</h3>
+                <p>
+                    If the user presses the <i>Delete Waypoint</i> button, the override mode will be set to <i>Delete</i>.
+                    The mouse cursor will change to a plus icon, indicating that the user can delete a waypoint by clicking 
+                    its respective icon on the large map.
+                </p>
+                <p>
+                    Deleting a waypoint is performed when the <i>OnMouseButtonDown</i> event is triggered in the <b>WBP_POI_LargeMap</b> widget,
+                    which performs the following steps:
+                    <ol>
+                        <li>Check if the widget has <i>Is Waypoint</i> boolean equal to <b>True</b></li>
+                        <li>If so, fire <b>BP_WaypointManager</b>'s <i>DeleteWaypointEvent</i> to handle deleting the waypoint</li>
+                    </ol>
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="data-tables">
+            <h2>Data Tables</h2>
+            <p>
+                The Drone Environment uses data tables to display drone and waypoint data.
+                These data tables are located in <i>Content/UI/DataTables</i>.
+            </p>
+            <div id="data-tables-drone">
+                <img src="{{ site.baseurl }}/assets/images/drone-environment/drone-data-table.png" alt="Drone Data Table">
+                <p>
+                    The drone data table displays the following data:
+                    <ul>
+                        <li><b>Drone ID</b></li>
+                        <li><b>Target ID:</b> The waypoint the drone is currently assigned to</li>
+                        <li>
+                            <b>State:</b> The drone's state, defined as:
+                            <ul>
+                                <li><b>INITIALIZING:</b> Awaiting initialization steps on start of simulation</li>
+                                <li><b>IDLE:</b> Awaiting for a target to search</li>
+                                <li><b>MOVING:</b> Moving to its target</li>
+                                <li><b>SEARCHING:</b> Performing scan of POI</li>
+                            </ul>
+                        </li>
+                        <li><b>(X, Y, Z)</b> Coordinates in meters relative to <i>PlayerStart</i></li>
+                    </ul>
+                </p>
+            </div>
+            <div id="data-tables-waypoint">
+                <img src="{{ site.baseurl }}/assets/images/drone-environment/waypoint-data-table.png" alt="Waypoint Data Table">
+                <p>
+                    The waypoint data table displays the following data:
+                    <ul>
+                        <li><b>Waypoint ID</b></li>
+                        <li><b>(X, Y, Z)</b> Coordinates in meters relative to <i>PlayerStart</i></li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="poi">
+            <h2>Points of Interest</h2>
+            <p>
+                The Points of Interest (POI) encompass the drones and waypoints in the Drone Environment level.
+                Assets involving the icons and waypoints on the maps are located in <i>Content/POI</i>.
+            </p>
+            <p>
+                Below is a breakdown of the assets related to the POI:
+                <ul>
+                    <li>
+                        <b>AC_POI:</b> An actor component attached to <b>BP_POI</b> actors in the level.
+                        On <i>BeginPlay</i> and <i>OnWaypointInitialization</i>, this actor component calls
+                        the <i>AddPOI</i> functions within the minimap and large map widgets.
+                    </li>
+                    <br>
+                    <li>
+                        <b>AC_POI_Data:</b> An actor component attached to <b>BP_POI</b> actors in the level.
+                        This actor component is simply a data container that stores the ID value of a waypoint.
+                        The ID value is updated within <b>BP_WaypointManager</b> when the waypoint is added.
+                    </li>
+                    <br>
+                    <li>
+                        <b>WBP_WorldWaypoint:</b> A widget component that contains the waypoint icon and a text 
+                        box for displaying the waypoint ID in the level.
+                    </li>
+                    <br>
+                    <li>
+                        <b>BP_POI:</b> An actor that represents waypoints in the level. It contains the 
+                        <b>AC_POI</b> and <b>AC_POI_Data</b> components, as well as a <b>WBP_WorldWaypoint</b> widget component.
+                        <i>OnWaypointInitialization</i>, it will update the <b>WBP_WorldWaypoint</b> component to display
+                        the waypoint ID contained in <b>AC_POI_Data</b>.
+                    </li>
+                    <br>
+                    <li>
+                        <b>BP_WaypointManager:</b> An actor that manages all waypoints in the level.
+                        It contains events that are fired when there are user overrides or Python client updates involving waypoints:
+                        <ul>
+                            <li>
+                                <i>AddWaypointEvent</i>: Fired when a waypoint is added. IDs a set based on the total NumWaypointsCreated.
+                            </li>
+                            <li>
+                                <i>DeleteWaypointEvent</i>: Fired when a waypoint is deleted by the user in the large map. 
+                            </li>
+                            <li>
+                                <i>SpawnWaypointsEvent</i>: Spawns all waypoints with a tag in the level based on the difficulty selected by the user
+                            </li>
+                            <li>
+                                <i>InputAction SceneToggleUI</i>: Toggles the visibility of UI elements in the <b>ScenePanel</b>,
+                                including the minimap and the WBP_WorldWaypoint widgets.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </p>
+        </div>
+        <div id="references">
+            <h2>References</h2>
+            <p>
+                The following references were used to create the Drone Environment:
+                <ul>
+                    <li><a href="https://www.youtube.com/playlist?list=PL4G2bSPE_8unhcUuYl6fNPnSNCyJhCPDl">Minimap in Unreal Engine by Ryan Laley</a></li>
+                </ul>
+            </p>
+        </div>
+    </body>
+</html>
