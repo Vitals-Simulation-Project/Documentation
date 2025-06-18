@@ -5,3 +5,370 @@ parent: Drone Environment
 nav_order: 2
 permalink: /drone-environment/websocket/
 ---
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ site.baseurl }}/assets/style.css">
+        <title>WebSocket Communication</title>
+    </head>
+    <body>
+        <h1>WebSocket Communication</h1>
+        <hr>
+        <div id="table-of-contents">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#overview">WebSocket Overview</a></li>
+                <li><a href="#why-websockets">Why WebSockets?</a></li>
+                <li><a href="#use-cases">Use Cases</a></li>
+                <li><a href="#json-structure">JSON Message Structure</a></li>
+                <li><a href="#websocket-server">WebSocket Server</a></li>
+                <li><a href="#python-client">Python Client</a></li>
+                <li><a href="#ui-client">UI Client</a></li>
+            </ul>
+        </div>
+        <hr>
+        <div id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                This is a guide detailing how we are using a WebSocket server
+                to communicate between the Unreal Engine project and the Python Client. 
+            </p>
+        </div>
+        <hr>
+        <div id="overview">
+            <h2>WebSocket Overview</h2>
+            <p>
+                A socket is a connection between two services over a TCP/IP connection. 
+                It acts as a programmatic way to send and receive data over the network.
+                Sockets are bidirectional (two-way) and full duplex (can send and receive simultaneously).
+                A socket is composed of an IP address and a port number.
+            </p>
+            <p>
+                A WebSocket is a network protocol that builds on the idea of sockets. It is built for rapid
+                real-time communication between services, and abstracts away the complexity of managing sockets.
+            </p>
+        </div>
+        <hr>
+        <div id="why-websockets">
+            <h2>Why WebSockets?</h2>
+            <p>
+                When developing the project, we learned that we needed a way to facilitate communication between
+                the Unreal Engine client and the Python Client. Although Colosseum provides an API that
+                allows the Python Client to gets data <u>from</u> Unreal Engine, there was no way to send data
+                <u>to</u> Unreal Engine. This was a problem because when we provide waypoint overriding from the UI,
+                we need to send data <u>from</u> Unreal Engine <u>to</u> the Python Client.
+            </p>
+            <p>
+                Our solution is to use a WebSocket server that simply hands sending messages between 
+                the Unreal Engine client and the Python client. That way, we can send data both ways.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/websockets/websocket_diagram.png" alt="WebSocket Diagram">
+            <p class="note">
+                This was the approach that the previous team had done for their minimap. They had a Minimap server
+                Python script that sent messages using ROS to a Minimap built within Unity. There are two main differences
+                between our approach and theirs:
+                <ul>
+                    <li>Our team ported map functionality from Unity to Unreal, eliminating the Unity dependency for the project.</li>
+                    <li>Our team is avoiding using ROS to handle data communication due to its setup complexity</li>
+                </ul>
+            </p>
+        </div>
+        <hr>
+        <div id="use-cases">
+            <h2>Use Cases</h2>
+            <p>
+                As mentioned above, we are using WebSockets to communicate data between the UI and the 
+                Python Client. Below is a list of all the cases that require WebSocket communication in the project:
+            </p>
+            <p>
+                <b>Python Client &rarr; UI</b>
+                <ul>
+                    <li>The Python Client can add a waypoint</li>
+                    <li>The Python Client can delete a waypoint</li>
+                    <li>The Python Client updates a drone's target in the data table</li>
+                    <li>The Python Client updates a drone's state in the data table</li>
+                </ul>
+            </p>
+            <p>
+                <b>UI &rarr; Python Client</b>
+                <ul>
+                    <li>User can add a waypoint through the UI</li>
+                    <li>User can delete a waypoint through the UI</li>
+                </ul>
+            </p>
+        </div>
+        <hr>
+        <div id="json-structure">
+            <h2>JSON Message Structure</h2>
+            <p>
+                Every message sent will contain a <code>MessageType</code> field. The <code>MessageType</code> field
+                contains a string that acts as the identifier for what action to take when receiving the message.
+            </p>
+            <p>
+                Below is the JSON structure for each of the possible messages that can be sent:
+            </p>
+            <div id="message-structure-python-to-ui">
+                <h3>Python Client &rarr; UI</h3>
+                <ul>
+                    <li>
+                        <b>AddWaypoint:</b>
+<pre>
+    <code>
+        {
+            "MessageType": "AddWaypoint",
+            "X": <i>float</i>,
+            "Y": <i>float</i>,
+            "Z": <i>float</i>,
+        }
+    </code>
+</pre>
+                    </li>
+                    <br>
+                    <li>
+                        <b>DeleteWaypoint:</b>
+<pre>
+    <code>
+        {
+            "MessageType": "DeleteWaypoint",
+            "ID": <i>int</i>,
+        }
+    </code>
+</pre>
+                    </li>
+                    <br>
+                    <li>
+                        <b>UpdateDroneTarget:</b>
+<pre>
+    <code>
+        {
+            "MessageType": "UpdateDroneTarget",
+            "DroneID": <i>int</i>,
+            "WaypointID": <i>int</i>,
+        }
+    </code>
+</pre>
+                    </li>
+                    <br>
+                    <li>
+                        <b>UpdateDroneState:</b>
+<pre>
+    <code>
+        {
+            "MessageType": "UpdateDroneState",
+            "DroneID": <i>int</i>,
+            "State": <i>string</i>
+        }
+    </code>
+</pre>
+                    </li>
+                </ul>
+            </div>
+            <div id="message-structure-ui-to-python">
+                <h3>UI &rarr; Python Client</h3>
+                <ul>
+                    <li>
+                        <b>StartSimulation:</b>
+<pre>
+    <code>
+        {
+            "MessageType": "StartSimulation",
+        }
+    </code>
+</pre>
+                    </li>
+                    <br>
+                    <li>
+                        <b>StopSimulation:</b>
+<pre>
+    <code>
+        {
+            "MessageType": "StopSimulation",
+        }
+    </code>
+</pre>
+                    </li>
+                    <br>
+                    <li>
+                        <b>AddWaypoint:</b>
+<pre>
+    <code>
+        {
+            "MessageType": "AddWaypoint",
+            "ID": <i>int</i>,
+            "X": <i>float</i>,
+            "Y": <i>float</i>,
+            "Z": <i>float</i>,
+            "Priority": <i>int</i>
+        }
+    </code>
+</pre>
+                    </li>
+                    <br>
+                    <li>
+                        <b>DeleteWaypoint:</b>
+<pre>
+    <code>
+        {
+            "MessageType": "DeleteWaypoint",
+            "ID": <i>int</i>,
+        }
+    </code>
+</pre>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <div id="websocket-server">
+            <h2>WebSocket Server</h2>
+            <p>
+                The WebSocket server is implemented in the <code>websocket/websocket_server.py</code> file
+                located in the Drone-Controller repository. This script starts a WebSocket server on
+                <code>ws://localhost:8765</code>
+            </p>
+            <p>
+                The WebSocket server is started as its own process inside the <code>updated_mission_control.py</code>
+                script with the <i>start_websocket_server()</i> function. This function is the entry point
+                to setting up the WebSocket server. It creates a new asynchronous event loop that handles all
+                async tasks within the WebSocket communication. This new event loop calls the <i>start()</i>
+            </p>
+            <p>
+                The <i>start()</i> function is what actually starts the WebSocket server. It sets the handler, host,
+                and port values
+            </p>
+            <p>
+                The <i>handler()</i> function is what a client will perform when it connects to the WebSocket server.
+                When a client sends a message to the server, the server will broadcast the message asynchronously to 
+                every other connected client inside the <b>CLIENTS</b> set.
+            </p>
+        </div>
+        <hr>
+        <div id="python-client">
+            <h2>Python Client</h2>
+            <p>
+                The <b>parent_controller.py</b> script handles WebSocket communication on the Python Client side.
+                Inside the <i>perform_startup_sequence()</i> function, a background thread is created to run
+                <i>start_websocket_client_thread()</i>.
+            </p>
+            <p>
+                The <i>start_websocket_client_thread()</i> function, like the WebSocket server, creates a new
+                asynchronous event loop that handles all async tasks within the WebSocket communication. This new
+                event loop calls the <i>connect_to_websocket_server()</i> function.
+            </p>
+            <p>
+                The <i>connect_to_websocket_server()</i> function is an asynchronous function to connect the 
+                client to the server. It then performs an infinite loop of waiting for and receiving messages
+                from the server and putting received messages in the <b>RECEIVED_UI_DATA_QUEUE</b>.
+            </p>
+            <p>
+                When the Parent Controller enters its <i>perform_startup_sequence()</i> function, it will wait for
+                a <b>StartSimulation</b> message from the UI. This message is sent by the UI client when the user
+                selects a difficulty.
+            </p>
+            <p>
+                Once the Parent Controller receives the <b>StartSimulation</b> message, it will enter its 
+                <i>receive_initial_waypoints()</i> function, where it will process all of the incoming 
+                <b>AddWaypoint</b> messages from the UI client.
+            </p>
+            <p>
+                When the Parent Controller enters its continuous <i>loop()</i> function, each iteration begins
+                by fetching any WebSocket messages in the <b>RECEIVED_UI_DATA_QUEUE</b> and process them inside 
+                <i>process_websocket_message()</i>
+            </p>
+            <p>
+                The <i>process_websocket_message()</i> function will check the <code>MessageType</code> field
+                of the message and perform the appropriate action as defined below:
+                <ul>
+                    <li><b>AddWaypoint:</b> Creates a new waypoint and pushes it onto the Waypoint Priority Queue</li>
+                    <li><b>DeleteWaypoint:</b> Deletes an existing waypoint with the given ID from the Waypoint Priority Queue. If a drone's target is deleted, this also sets the drone's current target to None</li>
+                    <li><b>StopSimulation:</b>Fires the <b>SHUTDOWN_EVENT</b> that is shared across all processes</li>
+                </ul>
+            </p>
+        </div>
+        <hr>
+        <div id="ui-client">
+            <h2>UI Client</h2>
+            <p>
+                The UI client starts with <b>BP_VitalsSimulationGameInstance</b>. This is the GameInstance defined
+                for the project under <code>Project Setting &gt; Maps and Modes</code>. A GameInstance is a 
+                high-level manager class for running the game. It contains overridable <i>Init()</i> and <i>Shutdown()</i>
+                functions that are called when the game starts and ends, respectively.
+            </p>
+            <p>
+                <b>BP_VitalsSimulationGameInstance</b> is derived from the <b>VitalsSimulationGameInstance</b> C++ class.
+                This blueprint only defines three event handlers:
+                <ul>
+                    <li>An event to get the reference to <b>BP_WaypointManager</b></li>
+                    <li>An event to get the reference to <b>WBP_DroneTable</b></li>
+                    <li>An event to get the reference to <b>WBP_HUD</b></li>
+                </ul>
+                These events are called by the WebSocketManager class when needed.
+            </p>
+            <p>
+                <b>VitalsSimulationGameInstance.cpp</b> is the core GameInstance class file. It contains the following:
+                <ul>
+                    <li><i>Init()</i>: GameInstance override, creates and initializes the <b>WebSocketManager</b> object</li>
+                    <li><i>Shutdown()</i>: GameInstance override, cleans up the <b>WebSocketManager</b></li>
+                </ul>
+                It also contains wrapper methods for sending messages. This is so that other blueprints can call these
+                methods once they get a reference to the GameInstance class.
+            </p>
+            <p>
+                The <b>WebSocketManager.cpp</b> class is what handles all WebSocket communication. It is initialized
+                within <b>VitalsSimulationGameInstance.cpp</b> as described above. Below is a list of the public methods
+                that are called by the methods of the GameInstance:
+                <ul>
+                    <li><i>Initialize()</i>: Continuously probe for a connection to the server. Once connected, it sets up the WebSocket Event Handlers</li>
+                    <li><i>Close()</i>: Closes the client connection</li>
+                    <li><i>SendAddWaypointMessage()</i>: Sends an AddWaypoint message to the server</li>
+                    <li><i>SendDeleteWaypointMessage()</i>: Sends a DeleteWaypoint message to the server</li>
+                    <li><i>SendStartSimulationMessage()</i>: Sends a StartSimulation message to the server</li>
+                    <li><i>SendStopSimulationMessage()</i>: Sends a StopSimulation message to the server</li>
+                </ul> 
+            </p>
+            <p>
+                When a message is received from the WebSocket server, the message is parsed as a JSON object
+                and is sent to the appropriate handler function based on the <code>MessageType</code> field.
+            </p>
+            <p class="note">
+                The JSON module is a required dependency for Unreal Engine to parse JSON messages.
+                The JSON module is included as a dependency in the <code>DroneEnvironment.Build.cs</code> file.
+            </p>
+            <p>
+                All message handlers in <b>WebSocketManager</b> are set up so that they call some other event
+                in a specific blueprint. In other words, they are calling a Blueprint-defined event from a C++ class.
+                In general, they perform the following operations:
+                <ol>
+                    <li>Get the associated data from the JSON message</li>
+                    <li>Get a function pointer to the event from the Blueprint you want to call</li>
+                    <li>Create a struct containing the parameters for the event</li>
+                    <li>Call <i>ProcessEvent()</i> with the function pointer and the parameters as arguments</li>
+                </ol>
+            </p>
+            <p>
+                For example, this is the general outline for when the UI client receives an <b>AddWaypoint</b> message
+                from the WebSocket server:
+                <ol>
+                    <li>Get the <code>X</code>, <code>Y</code>, and <code>Z</code> values from the JSON message</li>
+                    <li>Get a function pointer to the <i>AddWaypointEvent</i> found in <b>BP_WaypointManager</b></li>
+                    <li>Create a struct that matches the <i>AddWaypointEvent</i> parameters</li>
+                    <li>Call <i>ProcessEvent</i> with the function pointer and parameter struct as arguments</li>
+                </ol>
+                This will fire the <i>AddWaypointEvent</i> event in the <b>BP_WaypointManager</b> blueprint
+            </p>
+        </div>
+        <hr>
+        <div id="resources">
+            <h2>Resources</h2>
+            <ul>
+                <li><a href="https://websockets.readthedocs.io/en/stable/" target="_blank">WebSocket Python Module</a></li>
+                <li><a href="https://www.youtube.com/watch?v=l9TTmtDBTWY" target="_blank">How to Use WebSockets in Unreal Engine by Flopperam</a></li>
+                <li><a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Json" target="_blank">JSON in Unreal Engine</a></li>
+            </ul>
+        </div>
+    </body>
+</html>
