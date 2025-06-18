@@ -11,7 +11,7 @@ permalink: /project-setup/error-guide/
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="/assets/style.css">
+        <link rel="stylesheet" href="{{ site.baseurl }}/assets/style.css">
         <title>Vitals Simulation Error Guide</title>
     </head>
     <body>
@@ -100,7 +100,7 @@ permalink: /project-setup/error-guide/
                     bring you to the <i>AppData\Roaming</i> folder.
                 </p>
                 <br>
-                <img src="/assets/images/project-setup/error-guide/appdata-folder.png" alt="AppData Folder">
+                <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/appdata-folder.png" alt="AppData Folder">
                 <p>
                     Navigate to <i>Unreal Engine/Unreal Build Tool</i> and open <b>BuildConfiguration.xml</b>
                     with a text editor and change it to include the following:
@@ -216,7 +216,7 @@ permalink: /project-setup/error-guide/
                         and uncheck <b>Enable Live Coding</b>.
                     </p>
                     <br>
-                    <img src="/assets/images/project-setup/error-guide/live-coding-settings.png" alt="Disable Live Coding">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/live-coding-settings.png" alt="Disable Live Coding">
                 </p>
                 <p>
                     The second case is interference from an antivirus program. An antivirus
@@ -240,23 +240,23 @@ permalink: /project-setup/error-guide/
                     In the Content Browser, navigate to <i>Plugins/AirSim/Content/Blueprints</i>
                     and open <b>BP_SimHUDWidget</b>
                     <br>
-                    <img src="/assets/images/project-setup/error-guide/simhudwidget-location.png" alt="BP_SimHUDWidget Location">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/simhudwidget-location.png" alt="BP_SimHUDWidget Location">
                 </p>
                 <p class="note">
                     To see the Plugins folder in the Content Browser, click on the Settings icon and enable
                     <b>Show Plugin Content</b>.
                     <br>
-                    <img src="/assets/images/project-setup/error-guide/show-plugin-content-settings.png" alt="Show Plugin Content">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/show-plugin-content-settings.png" alt="Show Plugin Content">
                 </p>
                 <p>
                     In the Hierarchy tab, select the <b>[CanvasPanel_0]</b> component.
                     <br>
-                    <img src="/assets/images/project-setup/error-guide/simhudwidget-canvas-panel-location.png" alt="BP_SimHUDWidget Canvas Panel Location">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/simhudwidget-canvas-panel-location.png" alt="BP_SimHUDWidget Canvas Panel Location">
                 </p>
                 <p>
                     In the Details tab, set <b>Visibility</b> to <b>Not Hit Testable (Self & All Children)</b>.
                     <br>
-                    <img src="/assets/images/project-setup/error-guide/simhudwidget-canvas-panel-visibility.png" alt="BP_SimHUDWidget Canvas Panel Visibility">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/simhudwidget-canvas-panel-visibility.png" alt="BP_SimHUDWidget Canvas Panel Visibility">
                 </p>
             </div>
         </div>
@@ -293,21 +293,21 @@ permalink: /project-setup/error-guide/
                     Luckily, this is an easy fix. Navigate to 
                     <i>.../Colosseum/Unreal/Plugins/AirSim/Source/SimMode/<b>SimModeBase.cpp</b></i>
                     <br>
-                    <img src="/assets/images/project-setup/error-guide/simmodebase-location.png" alt="SimModeBase.cpp Location">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/simmodebase-location.png" alt="SimModeBase.cpp Location">
                 </p>
                 <p>
                     On line 229, change the <b>#if</b> directive to the following:
                     <b>#if ((ENGINE_MAJOR_VERSION > 4) || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 27))</b>
                     <br>
-                    <img src="/assets/images/project-setup/error-guide/simmodebase-fix.png" alt="SimModeBase.cpp Fix">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/simmodebase-fix.png" alt="SimModeBase.cpp Fix">
                 </p>
                 <p>
                     Once corrected, save the file and copy this Plugins folder into 
                     <i>.../Colosseum/Unreal/Environment/Blocks</i>. Then, open the <b>Blocks.sln</b> file in VS and
                     do <b>Build &gt; Build Solution</b>. You should be able to play the Blocks project.
                     <br>
-                    <img src="/assets/images/project-setup/error-guide/move-plugins-folder-pt1.png" alt="Move Plugins Folder Part 1">
-                    <img src="/assets/images/project-setup/error-guide/move-plugins-folder-pt2.png" alt="Move Plugins Folder Part 2">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/move-plugins-folder-pt1.png" alt="Move Plugins Folder Part 1">
+                    <img src="{{ site.baseurl }}/assets/images/project-setup/error-guide/move-plugins-folder-pt2.png" alt="Move Plugins Folder Part 2">
                 </p>
             </div>
         </div>
