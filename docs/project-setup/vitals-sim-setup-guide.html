@@ -5,3 +5,383 @@ parent: Project Setup
 nav_order: 1
 permalink: /project-setup/setup-guide/
 ---
+
+<DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ site.baseurl }}/assets/style.css">
+        <title>Vitals Simulation Setup Guide</title>
+    </head>
+    <body>
+        <h1>Vitals Simulation Project Setup</h1>
+        <hr>
+        <div id="table-of-contents">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#prerequisites">Prerequisites</a></li>
+                <li><a href="#anaconda">Anaconda</a></li>
+                <li><a href="#unreal-engine">Unreal Engine</a></li>
+                <li><a href="#visual-studio-2022">Visual Studio 2022</a></li>
+                <li><a href="#colosseum">Colosseum</a></li>
+                <li><a href="#api-test">Colosseum API Testing</a></li>
+                <li><a href="#simulator-performance">Simulator Performance</a></li>
+                <li><a href="#drone-environment">Drone Environment</a></li>
+                <li><a href="#ollama">Ollama</a></li>
+                <li><a href="#drone-controller">Drone Controller</a></li>
+                <li><a href="#running-project">Running the Project</a></li>
+            </ul>
+        </div>
+        <hr>
+        <div id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                This guide includes the steps to configure your development environment to run the Vitals Simulation project.
+            </p>
+        </div>
+        <hr>
+        <div id="prerequisites">
+            <h2>Prerequisites</h2>
+            <p>
+                <ol>
+                    <li>Set up Git on Windows: <a href="https://git-scm.com/downloads/win" target="_blank">Download Git</a></li>
+                    <li>Download Ollama: <a href="https://ollama.com/" target="_blank">Download Ollama</a></li>
+                    <li>Log into Azure with a Microsoft account: <a href="https://portal.azure.com/#home" target="_blank">Azure</a></li>
+                </ol>
+            </p>
+        </div>
+        <hr>
+        <div id="anaconda">
+            <h2>Anaconda</h2>
+            <p>
+                Download and install Anaconda from the official website: 
+                <a href="https://www.anaconda.com/products/distribution" target="_blank">Anaconda Distribution</a>.
+                Leave all configurations as default.
+            </p>
+            <p>
+                Next, create and set up a new Conda Virtual Environment by following these steps:
+                <ol>
+                    <li>Open the Anaconda Powershell Prompt (search for it in Windows Search Bar)</li>
+                    <li>Type <code>conda create --name ml_env python=3.9</code>. <i>ml_env</i> can be any name of your choice</li>
+                    <li>Type <code>conda activate ml_env</code>. This will activate the <i>ml_env</i> virtual environment</li>
+                    <li>
+                        Install the following Python packages:
+                        <ul>
+                            <li><code>pip install msgpack-rpc-python</code></li>
+                            <li><code>pip install airsim</code></li>
+                            <li><code>pip install websockets</code></li>
+                            <li><code>pip install ollama</code></li>
+                            <li><code>pip install requests</code></li>
+                            <li><code>pip install geopy</code></li>
+                            <li><code>pip install stopwatch.py</code></li>
+                        </ul>
+                    </li>
+                </ol>
+            </p>
+            <p>
+                Verify that all packages are installed by running <code>pip list</code>. This should contain 
+                all the packages above, and additional packages installed by the build wheel for PyTorch.
+            </p>
+            <p>
+                As a sanity check, type <code>python</code> and press enter to open a Python intepreter.
+                Then type <code>import airsim</code> and press enter. If no error is thrown, the installation was successful.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/anaconda-setup.png" alt="Import AirSim Test">
+            <p class="note">
+                If an error occurs, ensure that <code>msgpack-rpc-python</code> is installed before installing <code>airsim</code>.
+            </p>
+        </div>
+        <hr>
+        <div id="unreal-engine">
+            <h2>Unreal Engine</h2>
+            <p>
+                Install Unreal Engine 5.2 from the Epic Games Launcher by performing the following steps:
+                <ol>
+                    <li>Download the Epics Games Launcher and register for an Epic Games account if you do not have one.</li>
+                    <li>
+                        Run the Epic Games Launcher and open the Unreal Engine tab on the left pane.
+                        Click on the <b>Install</b> button on the top right <u>OR</u> click the + icon next to
+                        Engine Versions in the Library tab. In the new element that was created, select the version number
+                        dropdown and select <b>Unreal Engine Version 5.2.1</b>. Click <b>Install</b> and follow the installation steps.
+                    </li>
+                </ol>
+            </p>
+            <p>
+                After installation, open Unreal Engine and create a new project using the "Blank" template.
+                Ensure that you select "Blueprint" as the project type and enable "Starter Content".
+            </p>
+        </div>
+        <hr>
+        <div id="visual-studio-2022">
+            <h2>Visual Studio 2022</h2>
+            <p>
+                Download and install Visual Studio 2022 Community Edition from the official website:
+                <a href="https://visualstudio.microsoft.com/vs/community/" target="_blank">Visual Studio Community</a>.
+            </p>
+            <p>
+                During installation, ensure that you select the following workloads:
+                <ul>
+                    <li><b>.NET Desktop Development</b></li>
+                    <li><b>Desktop Development with C++</b></li>
+                    <li><b>Game Development with C++</b></li>
+                    <li><b>Windows Application Development</b></li>
+                </ul>
+            </p>
+            <p>
+                Select the following individual components:
+                <ul>
+                    <li><b>MSVC v143 - VS 2022 C++ x64/x86 build tools (14.38 - 17.8)</b></li>
+                </ul>
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/visual-studio-setup.png" alt="Visual Studio Setup">
+        </div>
+        <hr>
+        <div id="colosseum">
+            <h2>Colosseum</h2>
+            <p>
+                Download the source code .zip file found here:
+                <a href="https://github.com/CodexLabsLLC/Colosseum/releases/tag/v2.1.0" target="_blank">Colosseum UE 5.2 Support Release</a>.
+                <p class="note">
+                    It is recommended, but not required, to extract the .zip folder to a different drive from
+                    the C: drive, such as D: or E: drives. This is because Colosseum/AirSim scripts may fail
+                    if in the main drive, requiring VS to run in Admin mode. However, we have not had any
+                    problems with extracting the .zip folder to the C: drive.
+                </p>
+            </p>
+            <p>
+                Assuming Visual Studio is configured, start the <b>Developer Command Prompt for VS 2022</b>
+                (search for it in Windows Search Bar).
+            </p>
+            <p>
+                Now, in the Developer Command Prompt, navigate to the Colosseum/AirSim directory. 
+                Then, type <b>build</b> to build Colosseum/AirSim. Building Colosseum will create the Plugins
+                folder to be used within Unreal Engine.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-build.png" alt="Colosseum Build">
+            <p class="note">
+                If you encounter an error during the build process, refer to the <a href="./vitals-sim-error-guide.html">Error Guide</a>
+                for troubleshooting steps.
+            </p>
+            <p>
+                After the build is complete, there will be a Plugins folder under <i>.../Colosseum/Unreal</i>.
+                However, the specific release we downloaded has one error that needs to be fixed:
+            </p>
+            <p>
+                Navigate to <i>.../Colosseum/Plugins/AirSim/Source/SimMode/<b>SimModeBase.cpp</b></i>
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-simmode-location.png" alt="Colosseum SimMode Location">
+            <p>
+                Open <b>SimModeBase.cpp</b> in Visual Studio and on line 229, change the <b>#if</b> directive to the following:
+                <b>#if ((ENGINE_MAJOR_VERSION > 4) || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 27))</b>
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-simmode-fix.png" alt="Colosseum SimMode Fix">
+            <p>
+                Once corrected, save the file and copy the Plugins folder into <i>.../Colosseum/Unreal/Environments/Blocks</i>.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-plugins-copy-location-pt1.png" alt="Colosseum Plugins Copy Location Pt1">
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-plugins-copy-location-pt2.png" alt="Colosseum Plugins Copy Location Pt2">
+            <p class="note">
+                Make sure to copy/paste the updated version of the Plugins folder wherever you use the AirSim plugin.
+            </p>
+            <p>
+                Once done, navigate to <i>.../Colosseum/Unreal/Environments/Blocks</i>. Right-click the 
+                <b>Blocks.uproject</b> file and choose <b>Generate Visual Studio project files</b>. If prompted,
+                ensure that Engine Version 5.2 is selected.
+            </p>
+            <p class="note">
+                You might need to click <i>More Options</i> if you are on Windows 11 to see the
+                <b>Generate Visual Studio project files</b> option.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-generate-vs-project-files.png" alt="Colosseum Generate VS Project Files">
+            <p>
+                Next, we are going to build the Blocks Unreal Engine project. Open the newly created <b>Blocks.sln</b>
+                with Visual Studio 2022. In the top toolbar, click <i>Build &gt; Build Solution</i>.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-build-solution.png" alt="Colosseum Build Solution">
+            <p class="note">
+                If you encounter an error during the build process, refer to the <a href="./vitals-sim-error-guide.html">Error Guide</a>
+                for troubleshooting steps.
+            </p>
+            <p>
+                Once the build succeeds, open the <b>Blocks.uproject</b>. Click the Play button at the top. Select <b>No</b>
+                in the dialog box to use the quadcopter. You should see a multirotor drone spawn. Its rotors will move,
+                but the drone will be stationary.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-blocks-dialog.png" alt="Colosseum Blocks Play">
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-blocks-play.png" alt="Colosseum Blocks Play">
+        </div>
+        <hr>
+        <div id="api-test">
+            <h2>Colosseum API Testing</h2>
+            <p>
+                This section showcases an example of using and creating your own Python script to interact with the simulator.
+            </p>
+            <p>
+                Navigate to <i>...Colosseum/PythonClient</i>. This directory contains different directories
+                like <i>computer_vision</i> and <i>multirotor</i>. Each of these directories contains Python scripts
+                that can be run from the Conda Environment.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-python-client.png" alt="Colosseum Python Client">
+            <p>
+                To use a Python script, follow these steps:
+                <ol>
+                    <li>Open and run the Unreal Engine simulator with the appropriate vehicle (multirotor)</li>
+                    <li>In an Anaconda Powershell Prompt, activate your Conda Environment and navigate to the <i>...Colosseum/PythonClient/multirotor</i> directory</li>
+                    <li>Run <code>python script_name.py</code>, replacing <i>script_name</i> with the filename you want to run</li>
+                </ol>
+            </p>
+            <p>
+                For example, let's try running the <b>hello_drone.py</b> script located in <i>.../Colosseum/PythonClient/multirotor</i>
+                <ol>
+                    <li>
+                        Open the Blocks project and press play. Select <b>No</b> to use the quadcopter
+                        <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-blocks-play.png" alt="Play Blocks Project">
+                    </li>
+                    <li>
+                        In your Anaconda Powershell Prompt, activate your Conda Environment and navigate to <i>...Colosseum/PythonClient/multirotor</i>
+                        <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-python-client-multirotor-anaconda.png" alt="Anaconda Prompt">
+                    </li>
+                    <li>
+                        In your Anaconda Powershell Prompt, run <code>python hello_drone.py</code>
+                        <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/colosseum-python-client-multirotor-hello-drone.png" alt="Hello Drone Script">
+                    </li>
+                </ol>
+            </p>
+        </div>
+        <hr>
+        <div id="simulator-performance">
+            <h2>Simulator Performance</h2>
+            <p>
+                The simulator performance can be improved by adjusting the settings in Unreal Engine.
+                Open the Blocks project and go to <b>Edit &gt; Editor Preferences &gt; Performance</b>.
+            </p>
+            <p>
+                Disable <b>Use Less CPU when in Background</b> to increase performance when Unreal Engine is
+                not focused.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/simulator-performance.png" alt="Simulator Performance Settings">
+        </div>
+        <hr>
+        <div id="drone-environment">
+            <h2>Drone Environment</h2>
+            <p>
+                Now that Unreal Engine and Colosseum are set up, we are going to clone the landscape
+                environment Unreal Engine project.
+            </p>
+            <p>
+                Clone the Drone-Environment git repository found here:
+                <a href="https://github.com/Vitals-Simulation-Project/Drone-Environment" target="_blank">Drone-Environment Git Repo</a>
+            </p>
+            <p class="note">
+                Currently, the repository is being hosted on Azure DevOps since the Unreal Project exceeds the 
+                free tier Git LFS storage on GitHub. If cloning the repository requires a password, this likely
+                indicates that you just need to log into Azure DevOps with a Microsoft account.
+            </p>
+            <p>
+                Once the repository is cloned, open the File Explorer and copy the <i>Plugins</i> folder
+                that you generated when you built Colosseum (<i>.../Colosseum/Unreal/Plugins</i>) and paste
+                it into the <i>Drone-Environment</i> folder. Make sure this is the Plugins folder that contains
+                the changes to <b>SimModeBase.cpp</b> that we made earlier.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/drone-environment-plugins-copy-pt1.png" alt="Drone Environment Plugins Copy Pt1">
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/drone-environment-plugins-copy-pt2.png" alt="Drone Environment Plugins Copy Pt2">
+            <p>
+                Once done, right-click the <b>Drone-Environment.uproject</b> file and select
+                <b>Generate Visual Studio project files</b>. If prompted, ensure that Engine Version 5.2 is selected.
+            </p>
+            <p>
+                Once generated, there should be a <b>Drone-Environment.sln</b> file in the same directory.
+                Open this file with Visual Studio 2022. In the top toolbar, click <i>Build &gt; Build Solution</i>.
+            </p>
+            <p class="note">
+                If you encounter an error during the build process, refer to the <a href="./vitals-sim-error-guide.html">Error Guide</a>
+                for troubleshooting steps.
+            </p>
+            <p>
+                Once the build succeeds, open the <b>Drone-Environment.uproject</b> file. Click the Play button at the top.
+                Select <b>No</b> in the dialog box to use the quadcopter. You should see a multirotor drone spawn.
+            </p>
+        </div>
+        <hr>
+        <div id="ollama">
+            <h2>Ollama</h2>
+            <p>
+                Ollama is a framework that allows us to run AI models locally. We use Ollama as our interface
+                for communicating with our AI model in our scripts.
+            </p>
+            <p>
+                Since pulling the model for the first time takes a while, we are going to pull the model before 
+                running the project. First, ensure you have Ollama installed. Then, open up a Powershell Prompt
+                and run <code>ollama run gemma3:4b</code>. This will pull the Gemma 3 model containing 4 billion
+                parameters. Other models supported by Ollama can be found here:
+                <a href="https://ollama.com/search" target="_blank">Ollama Models</a>.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/ollama-run-gemma3.png" alt="Ollama Run Gemma3">
+            <p>
+                Once the model is pulled, you can interact with it like other LLMs through the terminal.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/ollama-interact.png" alt="Ollama Interact">
+        </div>
+        <hr>
+        <div id="drone-controller">
+            <h2>Drone Controller</h2>
+            <p>
+                Finally, we are going to clone the Drone-Controller repository, which contains our Python
+                scripts for handling the drone controller AI.
+            </p>
+            <p>
+                Clone the Drone-Controller git repository found here:
+                <a href="https://github.com/Vitals-Simulation-Project/Drone-Controller" target="_blank">Drone-Controller Git Repo</a>.
+            </p>
+            <p>
+                Next, create a new file <code>local_config.py</code> at the root of the Drone-Controller directory.
+                This contains two configuration variables:
+                <ul>
+                    <li><code>LOCAL_IP = "Your Windows IP Address"</code>, which can be found by running <code>ipconfig</code> in Windows Command Prompt</li>
+                    <li><code>EXECUTABLE_PATH = "Absolute/Path/To/DroneEnvironment.exe"</code>, which is used if you set <code>RELEASE_BUILD</code> to <code>True</code> in <code>parent_controller.py</code></li>
+                </ul>
+            </p>
+            <p>
+                The final step is to replace the <b>settings.json</b> file found in <i>.../Documents/AirSim</i>
+                with the one found in <i>Drone-Controller/settings.json</i>. The <i>AirSim</i> folder is 
+                specifically located in your main drive's Documents folder. It can also be found in 
+                <i>.../OneDrive/Documents/AirSim</i> if you are tracking your Documents folder with OneDrive.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/drone-controller-settings-json.png" alt="Drone Controller Settings JSON">
+            <p>
+                Press play in the Drone-Environment Unreal Engine project. You should now see 5 drones spawn
+                along with 3 subpanels.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/drone-environment-play.png" alt="Drone Environment Play">
+        </div>
+        <hr>
+        <div id="running-project">
+            <h2>Running the Project</h2>
+            <p>
+                With everything now set up, we can now run the project. Open up an Anaconda Powershell Prompt,
+                navigate to the <i>Drone-Controller</i> directory, and activate your Conda Environment.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/drone-controller-anaconda.png" alt="Drone Controller Anaconda Prompt">
+            <p>
+                Finally, to run the project, just run <code>python updated_mission_control.py</code>.
+            </p>
+            <img src="{{ site.baseurl }}/assets/images/project-setup/setup-guide/drone-controller-run.png" alt="Drone Controller Run">
+            <p>
+                By default, we should be running in editor mode. To start the simulation, open the Unreal Project
+                and press Play. Click on the Start button and select any difficulty to begin the simulation.
+            </p>
+            <p>
+                If you want to run the project in release mode, set <b>RELEASE_BUILD</b> to <b>True</b> in <i>parent_controller.py</i>.
+                Then, run the project again. Then, either Package the Unreal Engine project or download the 
+                <a href="https://github.com/Vitals-Simulation-Project/Drone-Environment/releases/tag/Latest" target="_blank">Drone Environment Build Release</a>
+                in the GitHub. Change the <b>EXECUTABLE_PATH</b> in <i>local_config.py</i> to the absolute path to the DroneEnvironment.exe file.
+            </p>
+            <p>
+                Once done, run <code>python updated_mission_control.py</code> again. This time, the script
+                will launch the Drone Environment executable automatically.
+            </p>
+        </div>
+    </body>
+</html>
