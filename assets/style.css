@@ -8,7 +8,6 @@ pre.code {
   display: block;
   white-space: pre;
   text-align: left;
-  margin-left: -200px; /* To remove indentation caused from HTML document */
 }
 
 .note {

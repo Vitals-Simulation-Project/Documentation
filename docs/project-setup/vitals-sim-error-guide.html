@@ -105,18 +105,18 @@ permalink: /project-setup/error-guide/
                     Navigate to <i>Unreal Engine/Unreal Build Tool</i> and open <b>BuildConfiguration.xml</b>
                     with a text editor and change it to include the following:
                 </p>
-                    <!-- Shift margin-left because pre takes into account indent of HTML document. -->
-                    <pre class="code">
-                        <code>
-                            &lt;?xml version="1.0" encoding="utf-8" ?&gt;
-                            &lt;Configuration xmlns="https://www.unrealengine.com/BuildConfiguration"&gt;
-                                &lt;WindowsPlatform&gt;
-                                    &lt;CompilerVersion&gt;14.38.33130&lt;/CompilerVersion&gt;
-                                    &lt;ToolchainVersion&gt;14.38.33130&lt;/ToolchainVersion&gt;
-                                &lt;/WindowsPlatform&gt;
-                            &lt;/Configuration&gt;
-                        </code>
-                    </pre>
+<!-- Shift margin-left because pre takes into account indent of HTML document. -->
+<pre class="code">
+    <code>
+        &lt;?xml version="1.0" encoding="utf-8" ?&gt;
+        &lt;Configuration xmlns="https://www.unrealengine.com/BuildConfiguration"&gt;
+            &lt;WindowsPlatform&gt;
+                &lt;CompilerVersion&gt;14.38.33130&lt;/CompilerVersion&gt;
+                &lt;ToolchainVersion&gt;14.38.33130&lt;/ToolchainVersion&gt;
+            &lt;/WindowsPlatform&gt;
+        &lt;/Configuration&gt;
+    </code>
+</pre>
                 </p>
                 <p class="note">
                     The version number you see in the <code>CompilerVersion</code> and <code>ToolchainVersion</code>
@@ -145,11 +145,12 @@ permalink: /project-setup/error-guide/
                     line 125 to the following:
                 </p>
                 <p>
-                    <pre class="code">
-                        <code>
-                            cmake -G"Visual Studio 17 2022" -T v143 ..
-                        </code>
-                    </pre>
+                    <!--Shift left because pre takes into account HTML document indent-->
+<pre class="code">
+    <code>
+        cmake -G"Visual Studio 17 2022" -T v143 ..
+    </code>
+</pre>
                 </p>
                 <p class="note">
                     The <code>-T v143</code> flag tells CMake to use the <b>MSVC v143 - VS 2022 C++ x64/x86 build tools (14.38 - 17.8)</b>
