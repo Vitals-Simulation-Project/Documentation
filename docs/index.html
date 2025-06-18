@@ -1,0 +1,79 @@
+---
+title: Home
+nav_order: 0
+permalink: /
+---
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home</title>
+        <link rel="stylesheet" href="{{ site.baseurl }}/assets/style.css">
+    </head>
+    <body>
+        <h1>Vitals Simulation</h1>
+        <hr>
+        <div id="introduction">
+            <h2>Introduction</h2>
+            <p>
+                Vitals Simulation is a simulation of a Search and Rescue operation using AI-powered drones.
+                This project was created as part of UCF Computer Science Senior Design. The project is sponsored
+                by Lockheed Martin.
+            </p>
+        </div>
+        <hr>
+        <div id="overview">
+            <h2>Project Overview</h2>
+            <p>
+                The goal of VITALs (Visual Intelligent Tactical Assistant for Low-power operations) Simulation is to 
+                produce a proof-of-concept for conducting a Search and Rescue operation with fully autonomous drone swarm.
+                The simulation is designed to demonstrate the capabilities of AI-powered drones and test various 
+                AI models and rescue strategies in a simulated environment. Users have the ability to view and override
+                drone behavior throughout the simulation.
+            </p>
+            <br>
+            <iframe src="https://youtu.be/Pa8wViLaM3E" 
+                    title="Vitals Simulation Showcase" 
+                    width="560" 
+                    height="315" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>
+        </div>
+        <hr>
+        <div id="pages">
+            <h2>Documentation Pages</h2>
+            <div id="project-setup">
+                <h3>Project Setup</h3>
+                <ul>
+                    <li><a href="{{ site.baseurl }}/project-setup/setup-guide/">Setup Guide</a></li>
+                    <li><a href="{{ site.baseurl }}/project-setup/error-guide/">Error Guide</a></li>
+                </ul>
+            </div>
+            <div id="drone-controller">
+                <h3>Drone Controller</h3>
+                <ul>
+                    <li><a href="{{ site.baseurl }}/drone-controller/drone-controller-details/">Drone Controller Details</a></li>
+                </ul>
+            </div>
+            <div id="drone-environment">
+                <h3>Drone Environment</h3>
+                <ul>
+                    <li><a href="{{ site.baseurl }}/drone-environment/drone-environment-details/">Drone Environment Details</a></li>
+                    <li><a href="{{ site.baseurl }}/drone-environment/websocket/">WebSocket Details</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <div id="resources">
+            <h2>Resources</h2>
+            <ul>
+                <li><a href="https://github.com/Vitals-Simulation-Project">GitHub</a></li>
+                <li><a href="https://dev.azure.com/Zach-Sally/VITALS-Drone-Environment/_git/Drone-Environment">Azure DevOps</a></li>
+            </ul>
+        </div>
+    </body>
+</html>
